@@ -13,22 +13,20 @@ function genQuestions(p,gaps,rev){const rl=(rev||'').toLowerCase();const covered
 
 function Ring({pct,sz=90,sw=7,color="#1a1f71"}){const r=(sz-sw)/2;const circ=Math.PI*2*r;const[a,setA]=useState(0);useEffect(()=>{let s=null;const f=(t)=>{if(!s)s=t;const pr=Math.min((t-s)/1000,1);setA(pr*pct);if(pr<1)requestAnimationFrame(f);};requestAnimationFrame(f);},[pct]);return(<svg width={sz} height={sz}><circle cx={sz/2} cy={sz/2} r={r} fill="none" stroke="#e8e8e8" strokeWidth={sw}/><circle cx={sz/2} cy={sz/2} r={r} fill="none" stroke={color} strokeWidth={sw} strokeDasharray={circ} strokeDashoffset={circ*(1-a/100)} strokeLinecap="round" transform={`rotate(-90 ${sz/2} ${sz/2})`}/><text x={sz/2} y={sz/2} textAnchor="middle" dominantBaseline="middle" fontSize="18" fontWeight="700" fill="#1a1f71" fontFamily="inherit">{Math.round(a)}%</text></svg>);}
 
-// Expedia exact colors + typography
 const C = {
-  // Expedia brand
-  navy: '#1a1f71',      // Expedia primary navy
-  blue: '#3662d8',      // Expedia link blue
-  blueCta: '#1a1f71',   // Button blue (same as navy)
-  yellow: '#febb02',    // Expedia yellow
+  navy: '#1a1f71',
+  blue: '#3662d8',
+  blueCta: '#1a1f71',
+  yellow: '#febb02',
   yellowLight: '#fef7e0',
   white: '#ffffff',
-  bg: '#f8f7f5',        // Expedia warm off-white background
+  bg: '#f8f7f5',
   card: '#ffffff',
-  border: '#e6e4e0',    // Warm gray border
-  text: '#1a1a1a',      // Near black text
-  textSec: '#545454',   // Secondary text
-  textTer: '#757575',   // Tertiary
-  green: '#007732',     // Expedia green
+  border: '#e6e4e0',
+  text: '#1a1a1a',
+  textSec: '#545454',
+  textTer: '#757575',
+  green: '#007732',
   greenLight: '#e8f5e9',
   red: '#cc0000',
   redLight: '#fde8e8',
@@ -68,7 +66,6 @@ export default function ReviewIQ(){
     return <span style={{background:C.greenLight,color:C.green,padding:'2px 8px',borderRadius:4,fontSize:11,fontWeight:600}}>Low</span>;
   };
 
-  // Expedia-style star rating
   const StarRow=({val,sz=24})=>(
     <div style={{display:'flex',gap:2}}>
       {[1,2,3,4,5].map(s=>(
@@ -79,7 +76,6 @@ export default function ReviewIQ(){
     </div>
   );
 
-  // Expedia-style header bar
   const Header=({onBack})=>(
     <div style={{background:C.navy,padding:'0 24px',height:56,display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:10}}>
       {onBack ? <button onClick={onBack} style={{background:'none',border:'none',cursor:'pointer',color:C.white,fontSize:14,display:'flex',alignItems:'center',gap:6,...ff}}>
@@ -93,7 +89,6 @@ export default function ReviewIQ(){
     </div>
   );
 
-  // Expedia blue CTA button
   const CtaBtn=({children,onClick,disabled,variant='primary',style:sx={}})=>(
     <button onClick={onClick} disabled={disabled} style={{
       width:'100%',padding:'12px 24px',borderRadius:12,border:variant==='secondary'?'2px solid '+C.navy:'none',
@@ -104,39 +99,102 @@ export default function ReviewIQ(){
     }}>{children}</button>
   );
 
-  // ========== SELECT PROPERTY ==========
   if(stage==='select'){
     return(<div style={{minHeight:'100vh',background:C.bg,...ff}}><style>{css}</style>
       <Header/>
-      {/* Hero */}
       <div style={{background:C.navy,padding:'40px 24px 48px',textAlign:'center'}}>
         <h1 style={{color:C.white,fontSize:28,fontWeight:700,marginBottom:8}}>Write a smarter review</h1>
         <p style={{color:'#b8b8d0',fontSize:15,maxWidth:480,margin:'0 auto',lineHeight:1.5}}>
           Select a property you stayed at. We'll ask 1-2 quick follow-up questions to help future travelers.
         </p>
       </div>
-      {/* Property grid */}
+
       <div style={{maxWidth:880,margin:'-24px auto 0',padding:'0 16px 48px',position:'relative',zIndex:1}}>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:12}}>
-          {PROPS.map((pp,pi)=>{const gc=detectGaps(pp).filter(g=>g.sev>0.5).length;return(
-            <button key={pp.id} onClick={()=>{setProp(pp);setStage('write');}}
-              style={{background:C.card,border:'1px solid '+C.border,borderRadius:12,padding:'16px 20px',textAlign:'left',cursor:'pointer',transition:'box-shadow 0.2s, transform 0.2s',position:'relative',boxShadow:'0 1px 4px rgba(0,0,0,0.08)',animation:`fadeIn 0.4s ease-out ${0.05*pi}s both`}}
-              onMouseOver={e=>{e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,0.12)';e.currentTarget.style.transform='translateY(-2px)';}}
-              onMouseOut={e=>{e.currentTarget.style.boxShadow='0 1px 4px rgba(0,0,0,0.08)';e.currentTarget.style.transform='none';}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
-                <div>
-                  <div style={{fontSize:17,fontWeight:700,color:C.text}}>{pp.city}</div>
-                  <div style={{fontSize:13,color:C.textSec,marginTop:2}}>{pp.country}{pp.stars ? ' | '+pp.stars+'-star' : ''}</div>
+          {PROPS.map((pp,pi)=>{
+            const gc=detectGaps(pp).filter(g=>g.sev>0.5).length;
+            return(
+              <button
+                key={pp.id}
+                onClick={()=>{setProp(pp);setStage('write');}}
+                style={{
+                  background:C.card,
+                  border:'1px solid '+C.border,
+                  borderRadius:12,
+                  padding:'18px 20px',
+                  textAlign:'left',
+                  cursor:'pointer',
+                  transition:'box-shadow 0.2s, transform 0.2s',
+                  position:'relative',
+                  boxShadow:'0 1px 4px rgba(0,0,0,0.08)',
+                  animation:`fadeIn 0.4s ease-out ${0.05*pi}s both`,
+                  overflow:'hidden'
+                }}
+                onMouseOver={e=>{e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,0.12)';e.currentTarget.style.transform='translateY(-2px)';}}
+                onMouseOut={e=>{e.currentTarget.style.boxShadow='0 1px 4px rgba(0,0,0,0.08)';e.currentTarget.style.transform='none';}}
+              >
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12,marginBottom:14}}>
+                  <div style={{flex:1,minWidth:0,paddingRight:4}}>
+                    <div style={{fontSize:17,fontWeight:700,color:C.text,lineHeight:1.2,wordBreak:'break-word'}}>
+                      {pp.city}
+                    </div>
+                    <div style={{fontSize:13,color:C.textSec,marginTop:4,lineHeight:1.35,wordBreak:'break-word'}}>
+                      {pp.country}{pp.stars ? ' | '+pp.stars+'-star' : ''}
+                    </div>
+
+                    {gc>6&&(
+                      <div
+                        style={{
+                          display:'inline-flex',
+                          alignItems:'center',
+                          marginTop:10,
+                          background:C.red,
+                          color:C.white,
+                          fontSize:10,
+                          fontWeight:700,
+                          padding:'4px 10px',
+                          borderRadius:999,
+                          whiteSpace:'nowrap'
+                        }}
+                      >
+                        Needs data
+                      </div>
+                    )}
+                  </div>
+
+                  <div
+                    style={{
+                      background:pp.rating>=8.5?C.green:pp.rating>=7?C.navy:'#6d5b00',
+                      color:C.white,
+                      fontSize:13,
+                      fontWeight:700,
+                      padding:'4px 8px',
+                      borderRadius:8,
+                      minWidth:36,
+                      textAlign:'center',
+                      flexShrink:0,
+                      alignSelf:'flex-start'
+                    }}
+                  >
+                    {pp.rating}
+                  </div>
                 </div>
-                <div style={{background:pp.rating>=8.5?C.green:pp.rating>=7?C.navy:'#6d5b00',color:C.white,fontSize:13,fontWeight:700,padding:'4px 8px',borderRadius:8,minWidth:32,textAlign:'center'}}>{pp.rating}</div>
-              </div>
-              <div style={{display:'flex',gap:24}}>
-                <div><div style={{fontSize:11,color:C.textTer,textTransform:'uppercase',fontWeight:600,letterSpacing:0.5}}>Reviews</div><div style={{fontSize:20,fontWeight:700,color:C.text}}>{pp.totalReviews}</div></div>
-                <div><div style={{fontSize:11,color:C.textTer,textTransform:'uppercase',fontWeight:600,letterSpacing:0.5}}>Info gaps</div><div style={{fontSize:20,fontWeight:700,color:gc>6?C.red:gc>3?C.orange:C.green}}>{gc}</div></div>
-              </div>
-              {gc>6&&<div style={{position:'absolute',top:12,right:12,background:C.red,color:C.white,fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:4}}>Needs data</div>}
-            </button>);})}
+
+                <div style={{display:'flex',gap:24,rowGap:10,flexWrap:'wrap'}}>
+                  <div>
+                    <div style={{fontSize:11,color:C.textTer,textTransform:'uppercase',fontWeight:600,letterSpacing:0.5}}>Reviews</div>
+                    <div style={{fontSize:20,fontWeight:700,color:C.text}}>{pp.totalReviews}</div>
+                  </div>
+                  <div>
+                    <div style={{fontSize:11,color:C.textTer,textTransform:'uppercase',fontWeight:600,letterSpacing:0.5}}>Info gaps</div>
+                    <div style={{fontSize:20,fontWeight:700,color:gc>6?C.red:gc>3?C.orange:C.green}}>{gc}</div>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
         </div>
+
         <p style={{textAlign:'center',color:C.textTer,fontSize:12,marginTop:20}}>
           {PROPS.length} properties | {PROPS.reduce((s,pp)=>s+pp.totalReviews,0).toLocaleString()} reviews | Expedia Group dataset
         </p>
@@ -144,12 +202,10 @@ export default function ReviewIQ(){
     </div>);
   }
 
-  // ========== WRITE REVIEW ==========
   if(stage==='write'){
     return(<div style={{minHeight:'100vh',background:C.bg,...ff}}><style>{css}</style>
       <Header onBack={()=>{setStage('select');setProp(null);setReview('');setRating(0);}}/>
       <div style={{maxWidth:560,margin:'0 auto',padding:'24px 20px'}}>
-        {/* Property info card */}
         <div style={{background:C.card,borderRadius:12,padding:20,border:'1px solid '+C.border,marginBottom:16,boxShadow:'0 1px 4px rgba(0,0,0,0.06)'}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
             <div>
@@ -161,7 +217,6 @@ export default function ReviewIQ(){
           <p style={{fontSize:13,color:C.textSec,marginTop:12,lineHeight:1.5}}>{prop.desc}</p>
         </div>
 
-        {/* Star rating */}
         <div style={{background:C.card,borderRadius:12,padding:20,border:'1px solid '+C.border,marginBottom:16}}>
           <label style={{fontSize:14,fontWeight:700,color:C.text,marginBottom:12,display:'block'}}>Your overall rating</label>
           <div style={{display:'flex',alignItems:'center',gap:12}}>
@@ -170,7 +225,6 @@ export default function ReviewIQ(){
           </div>
         </div>
 
-        {/* Review text */}
         <div style={{background:C.card,borderRadius:12,padding:20,border:'1px solid '+C.border,marginBottom:16}}>
           <label style={{fontSize:14,fontWeight:700,color:C.text,marginBottom:12,display:'block'}}>Tell us about your stay</label>
           <div style={{position:'relative'}}>
@@ -196,19 +250,16 @@ export default function ReviewIQ(){
     </div>);
   }
 
-  // ========== CHAT / QUESTIONS ==========
   if(stage==='chat'){
     return(<div style={{minHeight:'100vh',background:C.bg,...ff,display:'flex',flexDirection:'column'}}><style>{css}</style>
       <Header onBack={()=>setStage('write')}/>
       <div style={{flex:1,maxWidth:560,margin:'0 auto',width:'100%',padding:'24px 20px'}}>
-        {/* Intro card */}
         <div style={{background:C.yellowLight,borderRadius:12,padding:'16px 20px',marginBottom:24,borderLeft:'4px solid '+C.yellow}}>
           <p style={{fontSize:14,color:C.text,lineHeight:1.5}}>
             We analyzed <strong>{prop.totalReviews} reviews</strong> for this property and found <strong>{gaps.length} information gaps</strong>. Here {questions.length===1?'is':'are'} {questions.length} quick question{questions.length>1?'s':''} that would help future travelers.
           </p>
         </div>
 
-        {/* Question cards */}
         {questions.map((q,idx)=>(
           <div key={idx} style={{background:C.card,borderRadius:12,border:'1px solid '+C.border,padding:20,marginBottom:16,boxShadow:'0 1px 4px rgba(0,0,0,0.06)',animation:`fadeIn 0.4s ease-out ${0.2+idx*0.2}s both`}}>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
@@ -247,7 +298,6 @@ export default function ReviewIQ(){
         <div ref={chatEnd}/>
       </div>
 
-      {/* Bottom actions */}
       <div style={{borderTop:'1px solid '+C.border,background:C.white,padding:'12px 20px',position:'sticky',bottom:0}}>
         <div style={{maxWidth:560,margin:'0 auto',display:'flex',gap:10}}>
           <CtaBtn variant="secondary" onClick={()=>setStage('impact')} style={{flex:1}}>Skip</CtaBtn>
@@ -257,7 +307,6 @@ export default function ReviewIQ(){
     </div>);
   }
 
-  // ========== IMPACT ==========
   if(stage==='impact'){
     const answered=Object.keys(answers).filter(k=>answers[k]?.trim()).length;
     const filled=questions.filter((_,i)=>answers[i]?.trim()).length;
@@ -266,7 +315,6 @@ export default function ReviewIQ(){
     const after=Math.min(100,before+Math.round(filled/Math.max(tg,1)*40));
 
     return(<div style={{minHeight:'100vh',background:C.bg,...ff}}><style>{css}</style>
-      {/* Success banner */}
       <div style={{background:C.navy,padding:'48px 24px',textAlign:'center'}}>
         <div style={{width:56,height:56,borderRadius:'50%',background:'rgba(255,255,255,0.15)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}>
           <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
@@ -276,7 +324,6 @@ export default function ReviewIQ(){
       </div>
 
       <div style={{maxWidth:560,margin:'0 auto',padding:'24px 20px'}}>
-        {/* Impact card */}
         <div style={{background:C.card,borderRadius:12,padding:24,border:'1px solid '+C.border,marginBottom:16,boxShadow:'0 1px 4px rgba(0,0,0,0.06)',marginTop:-20,position:'relative',zIndex:1}}>
           <h3 style={{fontSize:18,fontWeight:700,color:C.text,marginBottom:20}}>Your impact</h3>
           <div style={{display:'flex',justifyContent:'center',marginBottom:20}}><Ring pct={after}/></div>
@@ -288,7 +335,7 @@ export default function ReviewIQ(){
               </div>
             ))}
           </div>
-          {/* Progress bars */}
+
           <div style={{marginTop:20}}>
             <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
               <span style={{fontSize:13,fontWeight:600,color:C.text}}>Before your review</span>
@@ -307,7 +354,6 @@ export default function ReviewIQ(){
           </div>
         </div>
 
-        {/* Contributions */}
         <div style={{background:C.card,borderRadius:12,padding:20,border:'1px solid '+C.border,marginBottom:16}}>
           <h3 style={{fontSize:16,fontWeight:700,color:C.text,marginBottom:16}}>What you contributed</h3>
           {questions.map((q,i)=>{const a=answers[i];return(
@@ -330,5 +376,6 @@ export default function ReviewIQ(){
       </div>
     </div>);
   }
+
   return null;
 }
